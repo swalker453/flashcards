@@ -11,6 +11,7 @@ qt_add_executable(flashcards
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    README.md
 )
 
 qt_add_translations(
