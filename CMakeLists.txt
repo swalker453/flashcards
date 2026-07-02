@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.19)
 project(flashcards LANGUAGES CXX)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools)
+set(CMAKE_AUTORCC ON)
 
 qt_standard_project_setup()
 
@@ -12,7 +13,12 @@ qt_add_executable(flashcards
     mainwindow.h
     mainwindow.ui
     README.md
+    resource.qrc
+    app.rc
 )
+
+set_target_properties(flashcards PROPERTIES
+   QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
 
 qt_add_translations(
     TARGETS flashcards
