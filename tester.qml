@@ -10,6 +10,9 @@ Item{
         return Qt.rgba(r / 255, g / 255, b / 255, 1)
     }
 
+    property int status:0
+    property int answer_status:0
+
     Item {
         id:content
 
@@ -87,7 +90,7 @@ Item{
                 color: rgb(32,49,32)
 
                 Repeater {
-                    model: Math.floor(innerBox.width / innerBox.cellSize) + 1
+                    model: Math.max(0,Math.floor(innerBox.width / innerBox.cellSize)) + 1
 
                     Rectangle {
                         width: 2
@@ -101,7 +104,7 @@ Item{
                 }
 
                 Repeater {
-                    model: Math.floor(innerBox.height / innerBox.cellSize) + 1
+                    model: Math.max(0,Math.floor(innerBox.height / innerBox.cellSize)) + 1
 
                     Rectangle {
                         width: innerBox.width
@@ -126,29 +129,92 @@ Item{
                     color: rgb(211,181,154)
                 }
 
-                Column{
-                    spacing:10
-                    anchors.fill: parent
-                    anchors.margins: 20
-                    Text {
-                        color:"white"
-                        anchors.left: parent.left
-                        text: "問題No." + String(dq.no) + "　　" + dq.kind
+                Item{
+                    visible:root.status == 1 && root.answer_status==0
+                    Column{
+                        spacing:10
+                        anchors.fill: parent
+                        anchors.margins: 20
+                        Text {
+                            color:"white"
+                            anchors.left: parent.left
+                            text: "問題No." + String(dq.no) + "　　" + dq.kind
 
+                        }
+
+                        Text {
+                            color:"white"
+                            anchors.left: parent.left
+                            text: dq.question
+                        }
+
+                        Text {
+                            color:"white"
+                            width:parent.width
+                            anchors.left: parent.left
+                            text: dq.q_sentence
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Button{
+                            text:"答えを見る"
+                            onClicked:root.answer_status=1
+                        }
                     }
+                }
 
-                    Text {
-                        color:"white"
-                        anchors.left: parent.left
-                        text: dq.question
+                Item{
+                    visible:root.status == 1 && root.answer_status==1
+                    Column{
+                        spacing:10
+                        anchors.fill: parent
+                        anchors.margins: 20
+                        Text {
+                            color:"white"
+                            anchors.left: parent.left
+                            text: "問題No." + String(dq.no) + "　　" + dq.kind
+
+                        }
+
+                        Text {
+                            color:"white"
+                            anchors.left: parent.left
+                            text: dq.question
+                        }
+
+                        Text {
+                            color:"white"
+                            width:parent.width
+                            anchors.left: parent.left
+                            text: dq.q_sentence
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Button{
+                            text:"正解"
+                            onClicked:{
+                                root.answer_status = 0;
+                                mainWindow.questionChangeClicked(1)
+                            }
+                        }
+
+                        Button{
+                            text:"間違えた"
+                            onClicked:{
+                                root.answer_status = 0;
+                                mainWindow.questionChangeClicked(0)
+                            }
+                        }
                     }
+                }
 
-                    Text {
+                Item{
+                    visible:root.status==0
+                    Text{
                         color:"white"
                         width:parent.width
                         anchors.left: parent.left
-                        text: dq.q_sentence
-                        wrapMode: Text.WordWrap
+                        text:"ファイルを読み込んで出題する問題をチェックして下さい"
                     }
                 }
 

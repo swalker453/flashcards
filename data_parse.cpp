@@ -79,3 +79,32 @@ void csv_parse::init(QWidget* parent, QString Filename){
 void csv_parse::write(){
 
 }
+
+csv_record* csv_parse::record_get(int line_num){
+    for (std::vector<csv_record *>::iterator it = csv_records.begin();
+         it != csv_records.end();
+         ++it)
+    {
+        if(line_num == (*it)->line_num) return (*it);
+    }
+
+
+    return nullptr;
+}
+
+std::vector<int> csv_parse::exist_line_get(){
+    std::vector<int> ret_lines_tmp;
+    ret_lines_tmp.clear();
+
+    for (std::vector<csv_record *>::iterator it = csv_records.begin();
+         it != csv_records.end();
+         ++it)
+    {
+
+        ret_lines_tmp.push_back((*it)->line_num);
+    }
+
+    std::sort(ret_lines_tmp.begin(), ret_lines_tmp.end());
+    return ret_lines_tmp;
+
+}

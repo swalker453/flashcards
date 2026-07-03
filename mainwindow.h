@@ -90,6 +90,10 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+    void questline_set(int reset=0);
+    void question_set();
+    Q_INVOKABLE void questionChangeClicked(bool correct);
+
 private slots:
     void on_action_X_triggered();
 
@@ -101,6 +105,12 @@ private slots:
 
     void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
+    void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
+
+    void on_checkBox_checkStateChanged(const Qt::CheckState &arg1);
+
+    void on_checkBox_2_checkStateChanged(const Qt::CheckState &arg1);
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
@@ -109,11 +119,15 @@ private:
     ClickableLabel *bg_image2 = nullptr;
     disp_question dq;
 
+    std::vector<int>::iterator now_line;
+    std::vector<int> quest_lines;
     csv_parse body;
 
     std::vector<QTreeWidgetItem *>genres;
     std::vector<QTreeWidgetItem *>questions;
 
     void disp_refresh();
+    int not_go_next;
+
 };
 #endif // MAINWINDOW_H

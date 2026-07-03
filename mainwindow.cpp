@@ -5,11 +5,16 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QQmlContext>
+#include <QQuickItem>
+#include <algorithm>
+#include <random>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    not_go_next= 0;
+
     ui->setupUi(this);
 
     bg_image2 = new ClickableLabel(ui->centralwidget);
@@ -30,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->treeWidget->setHeaderHidden(false);
 
+    ui->treeWidget->blockSignals(true);
     QStringList header_str;
     header_str << "No." << "問題" << "問題例" << "正解数" << "間違数";
     ui->treeWidget->setHeaderLabels(header_str);
@@ -62,7 +68,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-    ui->treeWidget->expandAll();
+    ui->treeWidget->collapseAll();
+    ui->treeWidget->blockSignals(false);
 
     QSurfaceFormat fmt;
     fmt.setAlphaBufferSize(8);
@@ -75,10 +82,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
+    ui->quickWidget->rootContext()->setContextProperty("mainWindow", this);
     ui->quickWidget->rootContext()->setContextProperty("dq",&dq);
     ui->quickWidget->setSource(QUrl(QStringLiteral("qrc:/tester.qml")));
 
-
+    questline_set();
 
 }
 
@@ -131,12 +139,95 @@ void MainWindow::on_pushButton_clicked()
 {
     body.init(this, ui->lineEdit->text());
     disp_refresh();
+    questline_set(1);
+    question_set();
+}
+
+void MainWindow::questline_set(int reset){
+    std::vector<int> a,b;
+    QObject *root = ui->quickWidget->rootObject();
+
+    if(!root) return;
+    int now_line_before;
+
+    if(reset){
+        now_line_before = 0;
+    }
+    else{
+        now_line_before = dq.m_no;
+    }
+    not_go_next = 0;
+
+    a=body.exist_line_get();
+
+    QTreeWidgetItemIterator it(ui->treeWidget);
+
+    while (*it) {
+        QTreeWidgetItem *item = *it;
+        if(item->checkState(0) == Qt::Checked && item->data(0,kindRole) == 2){
+            if(ui->checkBox_2->isChecked() || item->text(3).toInt()<=0){
+                b.push_back(item->data(0,lineRole).toInt());
+            }
+        }
+
+        ++it;
+    }
+
+    quest_lines.clear();
+    std::sort(a.begin(), a.end());
+    std::sort(b.begin(), b.end());
+    std::set_intersection(
+        a.begin(), a.end(),
+        b.begin(), b.end(),
+        std::back_inserter(quest_lines)
+        );
+
+    if(ui->checkBox->isChecked()){
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::shuffle(quest_lines.begin(),quest_lines.end(),g);
+        now_line = quest_lines.begin();
+    }
+    else{
+
+        std::sort(quest_lines.begin(), quest_lines.end(),
+                  [&](const int a, const int b){
+                      return body.record_get(a)->no < body.record_get(b)->no;
+                  });
+        now_line = quest_lines.begin();
+
+        for (std::vector<int>::iterator it = quest_lines.begin(); it != quest_lines.end(); ++it) {
+            if(body.record_get(*it)->no<now_line_before){
+                now_line = it;
+            }
+            else if(body.record_get(*it)->no==now_line_before){
+                now_line = it;
+                break;
+            }
+            else {
+                if(!reset){
+                    not_go_next = 1;
+                }
+                break;
+            }
+        }
+    }
+
+
+    if(quest_lines.size()>0){
+        root->setProperty("status",1);
+    }
+    else{
+        root->setProperty("status",0);
+    }
+
+
 }
 
 void MainWindow::disp_refresh(){
 
 
-
+    ui->treeWidget->blockSignals(true);
     for(int i=0;i<GENRES_MANY;i++){
         qDeleteAll(genres.at(i)->takeChildren());
     }
@@ -162,7 +253,8 @@ void MainWindow::disp_refresh(){
         }
     }
 
-    ui->treeWidget->expandAll();
+    ui->treeWidget->collapseAll();
+    ui->treeWidget->blockSignals(false);
 
 }
 
@@ -175,5 +267,85 @@ void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int colu
             "<h1>"+ item->data(0,answerRole).toString() + "</h1>\n<p>" + item->data(0,kaisetsuRole).toString() + "</p>" + "<p>CSV行番号 : " + item->data(0,lineRole).toString() + "</p>"
             );
     }
+}
+
+void MainWindow::question_set(){
+    csv_record *tmp_record;
+
+    if(quest_lines.empty() || body.csv_records.empty()){
+        dq.m_question = "";
+        dq.m_q_sentence = "";
+        dq.m_answer = "";
+        dq.m_a_sentence = "";
+        dq.m_line_num = 0;
+        dq.m_no = 0;
+        dq.m_correct_num = 0;
+        dq.m_wrong_num = 0;
+        dq.m_kind = "";
+
+        emit dq.dataChanged();
+        return;
+    }
+
+    tmp_record = body.record_get(*now_line);
+
+
+    QStringList genres_str;
+    genres_str << "読み" << "表外読み" << "熟語一字訓" << "書き取り" <<"四字熟語" <<"対義語類義語" << "故事諺";
+    \
+    dq.m_question = tmp_record->attr.at(0);
+    dq.m_q_sentence = tmp_record->attr.at(1);
+    dq.m_answer = tmp_record->attr.at(2);
+    dq.m_a_sentence = tmp_record->attr.at(3);
+    dq.m_line_num = tmp_record->line_num;
+    dq.m_no = tmp_record->no;
+    dq.m_correct_num = tmp_record->correct_num;
+    dq.m_wrong_num = tmp_record->wrong_num;
+
+    if(tmp_record->kind>0 &&  tmp_record->kind<=7){
+        dq.m_kind = genres_str.at(tmp_record->kind-1);
+    }
+    else{
+        dq.m_kind = "";
+    }
+
+    emit dq.dataChanged();
+}
+
+void MainWindow::questionChangeClicked(bool correct){
+    csv_record *tmp_record;
+
+    if(quest_lines.empty() || body.csv_records.empty()){
+        return;
+    }
+    if(!not_go_next){
+        now_line++;
+    }
+    not_go_next = 0;
+    if(now_line == quest_lines.end()){
+        now_line = quest_lines.begin();
+    }
+
+    question_set();
+
+}
+
+void MainWindow::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
+{
+    if(item->data(0,kindRole) == 2){
+        questline_set();
+    }
+}
+
+
+void MainWindow::on_checkBox_checkStateChanged(const Qt::CheckState &arg1)
+{
+    questline_set();
+}
+
+
+void MainWindow::on_checkBox_2_checkStateChanged(const Qt::CheckState &arg1)
+{
+    questline_set();
 }
 

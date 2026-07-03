@@ -22,6 +22,8 @@ public:
     void init(QWidget *parent, QString Filename);
     void write();
     std::vector<csv_record *> csv_records;
+    csv_record* record_get(int line_num);
+    std::vector<int> exist_line_get();
 private:
     QString filename;
 };
@@ -52,10 +54,6 @@ public:
         m_wrong_num = 0;
     }
 
-signals:
-    void dataChanged();
-
-private:
     int m_line_num;
     int m_no;
     QString m_kind;
@@ -65,6 +63,10 @@ private:
     QString m_a_sentence;
     int m_correct_num;
     int m_wrong_num;
+
+signals:
+    void dataChanged();
+
 };
 
 #endif // DATA_PARSE_H
