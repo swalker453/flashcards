@@ -8,12 +8,14 @@
 #include <QQuickItem>
 #include <algorithm>
 #include <random>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     not_go_next= 0;
+    questlineUpdatePending = false;
 
     ui->setupUi(this);
 
@@ -215,10 +217,15 @@ void MainWindow::questline_set(int reset){
 
 
     if(quest_lines.size()>0){
+        if(root->property("status")==0){
+            question_set();
+        }
         root->setProperty("status",1);
     }
     else{
         root->setProperty("status",0);
+        root->setProperty("answer_status",0);
+        question_set();
     }
 
 
@@ -309,32 +316,70 @@ void MainWindow::question_set(){
         dq.m_kind = "";
     }
 
+    QObject *root = ui->quickWidget->rootObject();
+    root->setProperty("answer_status",0);
+
     emit dq.dataChanged();
 }
 
 void MainWindow::questionChangeClicked(bool correct){
-    csv_record *tmp_record;
 
     if(quest_lines.empty() || body.csv_records.empty()){
         return;
     }
+
+    QTreeWidgetItemIterator it(ui->treeWidget);
+
+
+    if(correct){
+        body.cor_wor_increment(dq.m_line_num,1);
+
+    }else{
+        body.cor_wor_increment(dq.m_line_num,0);
+
+    }
+
+    ui->treeWidget->blockSignals(true);
+    while (*it) {
+        QTreeWidgetItem *item = *it;
+        if(item->data(0,lineRole).toInt() == dq.m_line_num && item->data(0,kindRole).toInt() == 2){
+            if(correct){
+                (*it)->setText(3, QString::number(body.record_get(dq.m_line_num)->correct_num));
+            }else{
+                (*it)->setText(4, QString::number(body.record_get(dq.m_line_num)->wrong_num));
+            }
+        }
+
+        ++it;
+    }
+    ui->treeWidget->blockSignals(false);
+
     if(!not_go_next){
         now_line++;
     }
     not_go_next = 0;
     if(now_line == quest_lines.end()){
-        now_line = quest_lines.begin();
+        questline_set(1);
     }
 
+
+    body.write(this);
     question_set();
 
 }
 
 void MainWindow::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
 {
-    if(item->data(0,kindRole) == 2){
+    if (column != 0) return;
+    if (item->data(0, kindRole).toInt() != 2) return;
+
+    if (questlineUpdatePending) return;
+    questlineUpdatePending = true;
+
+    QTimer::singleShot(0, this, [this]() {
+        questlineUpdatePending = false;
         questline_set();
-    }
+    });
 }
 
 

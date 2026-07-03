@@ -20,7 +20,8 @@ public:
 class csv_parse{
 public:
     void init(QWidget *parent, QString Filename);
-    void write();
+    void write(QWidget *parent);
+    void cor_wor_increment(int line_num, bool correct);
     std::vector<csv_record *> csv_records;
     csv_record* record_get(int line_num);
     std::vector<int> exist_line_get();

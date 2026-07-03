@@ -33,8 +33,9 @@ csv_record::csv_record(int num, QString data) : line_num(0),no(0), kind(0), corr
 }
 
 QString csv_record::emit_data(){
-
-    return "";
+    QString ret_str;
+    ret_str = QString::number(no) + "," + QString::number(kind) + "," + attr.at(0) + "," + attr.at(1) + "," + attr.at(2) + "," + attr.at(3) + ","+ QString::number(correct_num) + ","+ QString::number(wrong_num);
+    return ret_str;
 }
 
 void csv_parse::init(QWidget* parent, QString Filename){
@@ -76,8 +77,48 @@ void csv_parse::init(QWidget* parent, QString Filename){
     });
 
 }
-void csv_parse::write(){
+void csv_parse::write(QWidget* parent){
+    QFile file(filename);
 
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(parent, "エラー", "ファイルを開けませんでした");
+        return;
+    }
+
+    std::sort(csv_records.begin(), csv_records.end(),
+              [](const csv_record *a, const csv_record *b){
+                  return a->line_num < b->line_num;
+              });
+
+    QTextStream out(&file);
+
+    out << "No.,種類（1.読み 2.表外読み 3.熟語一字訓 4.書き取り 5.四字熟語 6.対義語類義語 7.故事諺）,問題,問題例,解答,備考,正解数,間違い数\n";
+    for (std::vector<csv_record*>::iterator it = csv_records.begin(); it != csv_records.end(); it++) {
+        out << (*it)->emit_data() << "\n";
+    }
+
+    file.close();
+
+    std::sort(csv_records.begin(), csv_records.end(),
+              [](const csv_record *a, const csv_record *b){
+                  return a->no < b->no;
+              });
+}
+
+void csv_parse::cor_wor_increment(int line_num, bool correct){
+    for (std::vector<csv_record *>::iterator it = csv_records.begin();
+         it != csv_records.end();
+         ++it)
+    {
+        if(line_num == (*it)->line_num) {
+            if(correct){
+                (*it)->correct_num++;
+            }
+            else{
+                (*it)->wrong_num++;
+            }
+        }
+    }
 }
 
 csv_record* csv_parse::record_get(int line_num){

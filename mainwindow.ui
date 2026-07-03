@@ -188,7 +188,13 @@ background-color:#e6e6f6;
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background:#fcc;</string>
+       <string notr="true">background:#fcc;
+
+        border: none;
+        background-image: url(:/image/image/bg.png);
+        background-repeat: no-repeat;
+        background-position: center;
+background-attachment: fixed;</string>
       </property>
       <column>
        <property name="text">

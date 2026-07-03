@@ -128,6 +128,7 @@ private:
 
     void disp_refresh();
     int not_go_next;
+    bool questlineUpdatePending;
 
 };
 #endif // MAINWINDOW_H
