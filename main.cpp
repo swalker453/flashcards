@@ -4,6 +4,7 @@
 #include <QLocale>
 #include <QTranslator>
 #include <QIcon>
+#include <QStyleFactory>
 
 
 int main(int argc, char *argv[])
@@ -20,6 +21,8 @@ int main(int argc, char *argv[])
             break;
         }
     }
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
+
     MainWindow w;
     w.show();
     return QApplication::exec();

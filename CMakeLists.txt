@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 project(flashcards LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools QuickWidgets Quick Qml)
 set(CMAKE_AUTORCC ON)
 
 qt_standard_project_setup()
@@ -15,6 +15,8 @@ qt_add_executable(flashcards
     README.md
     resource.qrc
     app.rc
+    data_parse.cpp
+    data_parse.h
 )
 
 set_target_properties(flashcards PROPERTIES
@@ -29,6 +31,9 @@ target_link_libraries(flashcards
     PRIVATE
         Qt::Core
         Qt::Widgets
+        Qt6::QuickWidgets
+        Qt6::Quick
+        Qt6::Qml
 )
 
 install(TARGETS flashcards

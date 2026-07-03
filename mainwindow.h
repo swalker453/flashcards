@@ -1,13 +1,86 @@
+#define GENRES_MANY 7
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QTreeWidgetItem>
 #include <QMainWindow>
+#include <QLabel>
+#include <QMouseEvent>
+#include <QPainter>
+#include "data_parse.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
 }
 QT_END_NAMESPACE
+
+
+#ifndef CLICKABLELABEL_H
+#define CLICKABLELABEL_H
+class ClickableLabel : public QLabel
+{
+    Q_OBJECT
+
+public:
+    explicit ClickableLabel(QWidget *parent = nullptr)
+        : QLabel(parent)
+    {
+        setCursor(Qt::PointingHandCursor);
+        setMouseTracking(true);
+    }
+
+signals:
+    void clicked();
+
+protected:
+    void mouseReleaseEvent(QMouseEvent *event) override
+    {
+        if (event->button() == Qt::LeftButton) {
+            emit clicked();
+        }
+
+        QLabel::mouseReleaseEvent(event);
+    }
+
+    void enterEvent(QEnterEvent *event) override
+    {
+        hover = true;
+        update();
+        QLabel::enterEvent(event);
+    }
+
+    void leaveEvent(QEvent *event) override
+    {
+        hover = false;
+        update();
+        QLabel::leaveEvent(event);
+    }
+
+    void paintEvent(QPaintEvent *event) override
+    {
+        QLabel::paintEvent(event);
+
+        if (hover) {
+            QPainter painter(this);
+            painter.fillRect(rect(), QColor(255, 255, 255, 127));
+        }
+    }
+
+private:
+    bool hover = false;
+};
+
+#endif // CLICKABLELABEL_H
+
+enum {
+    kindRole = Qt::UserRole + 1,
+    lineRole,
+    answerRole,
+    kaisetsuRole
+};
+
 
 class MainWindow : public QMainWindow
 {
@@ -17,7 +90,30 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+private slots:
+    void on_action_X_triggered();
+
+    void on_action_V_triggered();
+
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_clicked();
+
+    void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
     Ui::MainWindow *ui;
+    ClickableLabel *bg_image2 = nullptr;
+    disp_question dq;
+
+    csv_parse body;
+
+    std::vector<QTreeWidgetItem *>genres;
+    std::vector<QTreeWidgetItem *>questions;
+
+    void disp_refresh();
 };
 #endif // MAINWINDOW_H
