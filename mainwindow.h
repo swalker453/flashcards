@@ -111,6 +111,10 @@ private slots:
 
     void on_checkBox_2_checkStateChanged(const Qt::CheckState &arg1);
 
+    void on_pushButton_3_clicked();
+
+    void on_checkBox_3_checkStateChanged(const Qt::CheckState &arg1);
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 

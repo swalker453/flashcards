@@ -9,4 +9,9 @@
     <qresource prefix="/">
         <file>tester.qml</file>
     </qresource>
+    <qresource prefix="/sound">
+        <file>sound/correct.wav</file>
+        <file>sound/quest.wav</file>
+        <file>sound/wrong.wav</file>
+    </qresource>
 </RCC>

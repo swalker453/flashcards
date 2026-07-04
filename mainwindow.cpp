@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->treeWidget->blockSignals(true);
     QStringList header_str;
-    header_str << "No." << "問題" << "問題例" << "正解数" << "間違数";
+    header_str << "No." << "問題" << "問題例" << "正解数" << "誤答数";
     ui->treeWidget->setHeaderLabels(header_str);
     ui->treeWidget->setColumnCount(5);
 
@@ -92,7 +92,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->quickWidget->rootContext()->setContextProperty("dq",&dq);
     ui->quickWidget->setSource(QUrl(QStringLiteral("qrc:/tester.qml")));
 
+    ui->label_4->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    ui->label_4->setOpenExternalLinks(true);
+
     questline_set();
+    disp_refresh();
 
 }
 
@@ -236,7 +240,10 @@ void MainWindow::questline_set(int reset){
 }
 
 void MainWindow::disp_refresh(){
-
+    int quest_many[GENRES_MANY];
+    for(int i=0;i<GENRES_MANY;++i){
+        quest_many[i] = 0;
+    }
 
     ui->treeWidget->blockSignals(true);
     for(int i=0;i<GENRES_MANY;i++){
@@ -261,8 +268,17 @@ void MainWindow::disp_refresh(){
             questions.back()->setFlags(questions.back()->flags() | Qt::ItemIsUserCheckable);
             questions.back()->setCheckState(0, Qt::Checked);
 
+            quest_many[(*it)->kind-1]++;
         }
     }
+
+    QStringList genres_str;
+    genres_str << "読み" << "表外読み" << "熟語一字訓" << "書き取り" <<"四字熟語" <<"対義語類義語" << "故事諺";
+    for(int i=0; i<GENRES_MANY; i++){
+        genres.at(i)->setText(0, genres_str.at(i) + " （" + QString::number(quest_many[i]) + "問）");
+    }
+
+
 
     ui->treeWidget->collapseAll();
     ui->treeWidget->blockSignals(false);
@@ -305,7 +321,8 @@ void MainWindow::question_set(){
     genres_str << "読み" << "表外読み" << "熟語一字訓" << "書き取り" <<"四字熟語" <<"対義語類義語" << "故事諺";
     \
     dq.m_question = tmp_record->attr.at(0);
-    dq.m_q_sentence = tmp_record->attr.at(1);
+    QString temp_qs = tmp_record->attr.at(1);
+    dq.m_q_sentence = temp_qs.replace("<","~").replace(">","</u>").replace("~","<u>");
     dq.m_answer = tmp_record->attr.at(2);
     dq.m_a_sentence = tmp_record->attr.at(3);
     dq.m_line_num = tmp_record->line_num;
@@ -332,9 +349,6 @@ void MainWindow::questionChangeClicked(bool correct){
         return;
     }
 
-    QTreeWidgetItemIterator it(ui->treeWidget);
-
-
     if(correct){
         body.cor_wor_increment(dq.m_line_num,1);
 
@@ -342,6 +356,8 @@ void MainWindow::questionChangeClicked(bool correct){
         body.cor_wor_increment(dq.m_line_num,0);
 
     }
+
+    QTreeWidgetItemIterator it(ui->treeWidget);
 
     ui->treeWidget->blockSignals(true);
     while (*it) {
@@ -396,5 +412,34 @@ void MainWindow::on_checkBox_checkStateChanged(const Qt::CheckState &arg1)
 void MainWindow::on_checkBox_2_checkStateChanged(const Qt::CheckState &arg1)
 {
     questline_set();
+}
+
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    body.cor_wor_reset();
+
+    ui->treeWidget->blockSignals(true);
+
+    QTreeWidgetItemIterator it(ui->treeWidget);
+    while (*it) {
+        QTreeWidgetItem *item = *it;
+        if(item->data(0,kindRole).toInt() == 2){
+            (*it)->setText(3, QString::number(0));
+            (*it)->setText(4, QString::number(0));
+        }
+
+        ++it;
+    }
+    ui->treeWidget->blockSignals(false);
+
+    body.write(this);
+}
+
+
+void MainWindow::on_checkBox_3_checkStateChanged(const Qt::CheckState &arg1)
+{
+    QObject *root = ui->quickWidget->rootObject();
+    root->setProperty("soundon",arg1 == Qt::Checked);
 }
 

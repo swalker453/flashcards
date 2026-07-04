@@ -121,6 +121,17 @@ void csv_parse::cor_wor_increment(int line_num, bool correct){
     }
 }
 
+void csv_parse::cor_wor_reset(){
+    for (std::vector<csv_record *>::iterator it = csv_records.begin();
+         it != csv_records.end();
+         ++it)
+    {
+        (*it)->correct_num=0;
+        (*it)->wrong_num=0;
+    }
+}
+
+
 csv_record* csv_parse::record_get(int line_num){
     for (std::vector<csv_record *>::iterator it = csv_records.begin();
          it != csv_records.end();
