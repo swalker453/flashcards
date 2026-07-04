@@ -149,3 +149,10 @@ std::vector<int> csv_parse::exist_line_get(){
     return ret_lines_tmp;
 
 }
+
+csv_parse::~csv_parse()
+{
+    for (csv_record* p : csv_records) {
+        delete p;
+    }
+}

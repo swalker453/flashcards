@@ -25,9 +25,13 @@ public:
     std::vector<csv_record *> csv_records;
     csv_record* record_get(int line_num);
     std::vector<int> exist_line_get();
+
+    ~csv_parse();
 private:
     QString filename;
 };
+
+
 
 
 class disp_question : public QObject{

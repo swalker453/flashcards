@@ -19,6 +19,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
 
+#ifdef Q_OS_ANDROID
+    ui->toolBar->hide();
+#endif
+    \
     bg_image2 = new ClickableLabel(ui->centralwidget);
     bg_image2->setPixmap(QPixmap(":/image/image/banner.png"));
     bg_image2->setScaledContents(true);
