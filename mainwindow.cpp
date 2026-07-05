@@ -122,7 +122,7 @@ void MainWindow::on_action_V_triggered()
     QMessageBox::about(
         this,
         "バージョン情報",
-        "<h2>熊の字の漢検準一級暗記帳</h2>"
+        "<h2>熊の字印の漢検準一級暗記帳</h2>"
         "<p>Version 1.0.0</p>"
         "<p>漢検準一級に限る必要は無い気がします</p>"
         "<p><i>© 2026 oikawhr</i></p>"
@@ -132,13 +132,29 @@ void MainWindow::on_action_V_triggered()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(
+    QString fileName;
+
+#ifdef Q_OS_ANDROID
+    fileName = QFileDialog::getOpenFileName(
         this,
-        "問題ファイルを開く",
+        "出題用CSVファイルを開く"
+        );
+#else
+    fileName = QFileDialog::getOpenFileName(
+        this,
+        "出題用CSVファイルを開く",
         "",
         "問題CSVファイル (*.csv)"
         );
+#endif
+
     if (!fileName.isEmpty()) {
+#ifndef Q_OS_ANDROID
+        if (!fileName.endsWith(".csv", Qt::CaseInsensitive)) {
+            QMessageBox::warning(this, "ファイル形式エラー", "CSVファイルを選択してください。");
+            return;
+        }
+#endif
         ui->lineEdit->setText(fileName);
     }
     on_pushButton_clicked();

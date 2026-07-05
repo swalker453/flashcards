@@ -13,5 +13,6 @@
         <file>sound/correct.wav</file>
         <file>sound/quest.wav</file>
         <file>sound/wrong.wav</file>
+        <file>sound/start.wav</file>
     </qresource>
 </RCC>

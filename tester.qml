@@ -12,10 +12,15 @@ Item{
         return Qt.rgba(r / 255, g / 255, b / 255, 1)
     }
 
+    property int status_prev:0
     property int status:0
     property int answer_status:0
     property bool soundon:true
 
+    SoundEffect {
+        id: startSound
+        source: "qrc:/sound/sound/start.wav"
+    }
 
     SoundEffect {
         id: correctSound
@@ -32,6 +37,14 @@ Item{
         source: "qrc:/sound/sound/quest.wav"
     }
 
+    onStatusChanged:{
+        if(status_prev==0 && status>=1 && soundon){
+            startSound.play()
+        }
+        status_prev = status
+    }
+
+
     Item {
         id:content
 
@@ -43,6 +56,7 @@ Item{
         anchors.rightMargin: 30
         anchors.top: parent.top
         anchors.bottom: parent.bottom
+
 
         Image {
            id: img
@@ -85,10 +99,10 @@ Item{
             anchors.left: img.right
             anchors.leftMargin: -content.overlap
             anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -10
+            anchors.top:parent.top
+            anchors.topMargin: 10
 
-            height: 230
+            height: parent.height-25
             radius: 16
 
             property int bw: 10
@@ -169,7 +183,7 @@ Item{
                         anchors.left: parent.left
                         anchors.leftMargin: 12
                         anchors.top:parent.top
-                        anchors.topMargin: 12
+                        anchors.topMargin: 8
                         font.pixelSize: 14
                         text: "問題No." + String(dq.no) + "　　" + dq.kind
 
@@ -179,6 +193,7 @@ Item{
                         spacing:6
                         anchors.fill: parent
                         anchors.margins: 16
+                        anchors.topMargin: 24
 
                         Text {
                             color:"white"
@@ -201,6 +216,13 @@ Item{
                     Button{
                         id:answerButton
                         text:" 答えを見る(Space) "
+                        contentItem: Text {
+                            text: parent.text
+                            color: "#111"
+                            font: parent.font
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
 
                         font.pixelSize: 16
                         onClicked:{
@@ -216,7 +238,7 @@ Item{
 
                         background: Rectangle {
                             radius: 8
-                            color: answerButton.hovered ? "white" : "#ddd"
+                            color: answerButton.hovered ? "white" : "#ccc"
                             border.color: "#ffffff"
                             border.width: 1
 
@@ -262,7 +284,7 @@ Item{
                         anchors.left: parent.left
                         anchors.leftMargin: 12
                         anchors.top:parent.top
-                        anchors.topMargin: 12
+                        anchors.topMargin: 8
                         font.pixelSize: 14
                         text: "問題No." + String(dq.no) + "　　" + dq.kind
 
@@ -272,6 +294,7 @@ Item{
                         spacing:6
                         anchors.fill: parent
                         anchors.margins: 16
+                        anchors.topMargin: 24
 
                         Text {
                             width:parent.width
@@ -312,6 +335,14 @@ Item{
                             text:" 正解(Z) "
                             font.pixelSize: 16
 
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#222"
+                                font: parent.font
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
                             background: Rectangle {
                                 radius: 8
                                 color: correctButton.hovered? "white" : "#99f"
@@ -338,6 +369,15 @@ Item{
                             id:wrongButton
                             text:" 誤答(X) "
                             font.pixelSize: 16
+
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#222"
+                                font: parent.font
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
                             background: Rectangle {
                                 radius: 8
                                 color: wrongButton.hovered ? "white" : "#f99"

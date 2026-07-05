@@ -71,20 +71,30 @@ void csv_parse::init(QWidget* parent, QString Filename){
         }
     }
 
+    if (csv_records.empty()) {
+        QMessageBox::warning(
+            parent,"警告","出題用データが空か、壊れています。");
+        return;
+    }
+
     std::sort(csv_records.begin(), csv_records.end(),
         [](const csv_record *a, const csv_record *b){
         return a->no < b->no;
     });
 
+
 }
 void csv_parse::write(QWidget* parent){
     QFile file(filename);
 
+
+    if(csv_records.empty()){
+        return;
+    }
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox::warning(parent, "エラー", "ファイルを開けませんでした");
         return;
     }
-
     std::sort(csv_records.begin(), csv_records.end(),
               [](const csv_record *a, const csv_record *b){
                   return a->line_num < b->line_num;

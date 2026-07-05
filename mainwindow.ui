@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>熊の字の漢検準一級問題集</string>
+   <string>熊の字印の漢検準一級問題集</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
@@ -57,7 +57,7 @@ background-color:#e6e6f6;
          <string notr="true">font-weight: bold;background:transparent;</string>
         </property>
         <property name="text">
-         <string>熊の字の漢検準一級暗記帳</string>
+         <string>熊の字印の漢検準一級暗記帳</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -290,6 +290,12 @@ background-attachment: fixed;</string>
     </item>
     <item>
      <widget class="QQuickWidget" name="quickWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>400</width>
