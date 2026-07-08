@@ -15,7 +15,13 @@ Item{
     property int status_prev:0
     property int status:0
     property int answer_status:0
+    property int chara_img:Math.floor(Math.random() * 3)
     property bool soundon:true
+    property var images:[
+        "qrc:/image/image/pause_chara1.png",
+        "qrc:/image/image/pause_chara2.png",
+        "qrc:/image/image/pause_chara3.png"
+    ]
 
     SoundEffect {
         id: startSound
@@ -60,7 +66,7 @@ Item{
 
         Image {
            id: img
-            source: "qrc:/image/image/pause_chara2.png"
+            source: root.images[0]
 
             width: 155
             height: 115
@@ -82,6 +88,33 @@ Item{
                 blurMax: 32
             }
         }
+
+        Image {
+           id: nextimg
+            source: root.images[0]
+
+            width: 155
+            height: 115
+            fillMode: Image.PreserveAspectFit
+
+            opacity:0.0
+            x: 0
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: -1
+            z: 1
+
+            layer.enabled: true
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowColor: Qt.rgba(0, 0, 0, 0.35)
+                shadowBlur: 0.6
+                shadowHorizontalOffset: 6
+                shadowVerticalOffset: 6
+                blurMax: 32
+            }
+        }
+
 
         RectangularShadow {
             anchors.fill: boxFrame
@@ -324,6 +357,8 @@ Item{
 
                     }
                     Row{
+                        id:buttons_row
+
                         spacing:6
                         anchors.right: parent.right
                         anchors.rightMargin: 12
@@ -357,11 +392,11 @@ Item{
                                 }
                             }
                             onClicked:{
-                                root.answer_status = 0;
                                 mainWindow.questionChangeClicked(1)
                                 if(root.soundon){
                                     correctSound.play()
                                 }
+                                buttons_row.next_quest()
                             }
                         }
 
@@ -392,11 +427,11 @@ Item{
                                 }
                             }
                             onClicked:{
-                                root.answer_status = 0
                                 mainWindow.questionChangeClicked(0)
                                 if(root.soundon){
                                     wrongSound.play()
                                 }
+                                buttons_row.next_quest()
                             }
                         }
 
@@ -404,11 +439,11 @@ Item{
                             sequence: "Z"
                             enabled:answerPage.active
                             onActivated: {
-                                root.answer_status = 0
                                 mainWindow.questionChangeClicked(1)
                                 if(root.soundon){
                                     correctSound.play()
                                 }
+                                buttons_row.next_quest()
                             }
                         }
 
@@ -416,12 +451,47 @@ Item{
                             sequence: "X"
                             enabled:answerPage.active
                             onActivated: {
-                                root.answer_status = 0
                                 mainWindow.questionChangeClicked(0)
                                 if(root.soundon){
                                     wrongSound.play()
                                 }
+                                buttons_row.next_quest()
                             }
+                        }
+
+                        function next_quest(){
+                            root.answer_status = 0
+                            root.chara_img = (root.chara_img + Math.floor(Math.random() * 2)+1)%3
+                            nextimg.source = root.images[chara_img]
+                            fadeAnim.start()
+                        }
+
+
+                        ParallelAnimation {
+                            id: fadeAnim
+
+                            NumberAnimation {
+                                target: img
+                                property: "opacity"
+                                to: 0.0
+                                duration: 250
+                            }
+
+                            NumberAnimation {
+                                target: nextimg
+                                property: "opacity"
+                                to: 1.0
+                                duration: 250
+                            }
+
+                            onFinished: {
+                                script: {
+                                    img.source = root.images[chara_img]
+                                    img.opacity = 1.0
+                                    nextimg.opacity = 0.0
+                                }
+                            }
+
                         }
                     }
                 }
