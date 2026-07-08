@@ -5,6 +5,8 @@
         <file>image/pause_chara2.png</file>
         <file>image/banner.png</file>
         <file>image/bg.png</file>
+        <file>image/pause_chara1.png</file>
+        <file>image/pause_chara3.png</file>
     </qresource>
     <qresource prefix="/">
         <file>tester.qml</file>

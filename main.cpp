@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_ANDROID
     qputenv("QT_ENABLE_HIGHDPI_SCALING", "0");
 #endif
+
     QApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/image/image/ico3.png"));
 
