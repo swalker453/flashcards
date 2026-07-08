@@ -1,51 +1,15 @@
 # 熊の字印の漢検準一級暗記帳
 
-Paragraph.
+Windows/Androidで動作するQt/C++/QML製 漢検準一級暗記用アプリ  
+（準一級に拘る必要が無い気がします）
 
-## Second Level Heading
+## 概要
 
-Paragraph.
+## 解説
 
-- bullet
-+ other bullet
-* another bullet
-    * child bullet
+## 制作
 
-1. ordered
-2. next ordered
+- 効果音提供：[魔王魂](https://maou.audio/)様
+- 制作：[隅田川散歩人企画](https://swalker.sakura.ne.jp)
 
-### Third Level Heading
-
-Some *italic* and **bold** text and `inline code`.
-
-An empty line starts a new paragraph.
-
-Use two spaces at the end  
-to force a line break.
-
-A horizontal ruler follows:
-
----
-
-Add links inline like [this link to the Qt homepage](https://www.qt.io),
-or with a reference like [this other link to the Qt homepage][1].
-
-    Add code blocks with
-    four spaces at the front.
-
-> A blockquote
-> starts with >
->
-> and has the same paragraph rules as normal text.
-
-First Level Heading in Alternate Style
-======================================
-
-Paragraph.
-
-Second Level Heading in Alternate Style
----------------------------------------
-
-Paragraph.
-
-[1]: https://www.qt.io
+![スクリーンショット](image/screenshot.png)
